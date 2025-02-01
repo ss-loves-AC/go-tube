@@ -18,7 +18,7 @@ cd go-tube
 ```
 
 ### 2. Add Environment Variables
-Create a .env file in the root directory with the following variables:
+Add api key and predefined search query in .env file:
 ```bash
 YOUTUBE_API_KEY=your_api_key_1,your_api_key_2
 PREDEFINED_QUERY=cricket
@@ -27,9 +27,7 @@ PREDEFINED_QUERY=cricket
 ### 3. Use Docker
 Build and run the project from go-tube directory using
 ```bash
-docker-compose build
-docker-compose up
-
+docker-compose up --build
 ```
 
 
