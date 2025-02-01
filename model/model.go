@@ -3,11 +3,11 @@ package model
 import "time"
 
 type Video struct {
-	ID          int       `json:"id"`
-	VideoID     string    `json:"video_id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
+	ID          int       `gorm:"primaryKey;autoIncrement" json:"id"`
+	VideoID     string    `gorm:"uniqueIndex;not null" json:"video_id"` 
+	Title       string    `gorm:"not null" json:"title"`
+	Description string    `gorm:"type:text" json:"description"`
 	URL         string    `json:"url"`
 	Thumbnail   string    `json:"thumbnail"`
-	PublishedAt time.Time `json:"published_at"`
+	PublishedAt time.Time `gorm:"not null;index" json:"published_at"` 
 }
