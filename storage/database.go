@@ -12,8 +12,8 @@ import (
 )
 
 type DB interface {
-	GetVideos(ctx context.Context) ([]model.Video, error)
-	SearchVideos(ctx context.Context, query string) ([]model.Video, error)
+	GetVideos(ctx context.Context, page int, limit int) ([]model.Video, error)
+	SearchVideos(ctx context.Context, query string, page int, limit int) ([]model.Video, error)
 	InsertVideo(ctx context.Context, video model.Video) error
 }
 
@@ -46,20 +46,23 @@ func NewDB() (*MysqlDB, error) {
 	return &MysqlDB{DB: db}, nil
 }
 
-func (db *MysqlDB) GetVideos(ctx context.Context) ([]model.Video, error) {
+func (db *MysqlDB) GetVideos(ctx context.Context, page int, limit int) ([]model.Video, error) {
 
 	var videos []model.Video
-	if err := db.DB.WithContext(ctx).Order("published_at desc").Find(&videos).Error; err != nil {
+	offset := (page - 1) * limit
+
+	if err := db.DB.WithContext(ctx).Order("published_at desc").Limit(limit).Offset(offset).Find(&videos).Error; err != nil {
 		return nil, err
 	}
 	return videos, nil
 }
 
-func (db *MysqlDB) SearchVideos(ctx context.Context, query string) ([]model.Video, error) {
+func (db *MysqlDB) SearchVideos(ctx context.Context, query string, page int, limit int) ([]model.Video, error) {
 	var videos []model.Video
 	searchQuery, args := buildSearchQuery(query)
+	offset := (page - 1) * limit
 
-	if err := db.DB.WithContext(ctx).Where(searchQuery, args...).Order("published_at desc").Find(&videos).Error; err != nil {
+	if err := db.DB.WithContext(ctx).Where(searchQuery, args...).Order("published_at desc").Limit(limit).Offset(offset).Find(&videos).Error; err != nil {
 		return nil, err
 	}
 	return videos, nil
@@ -73,7 +76,7 @@ func (db *MysqlDB) InsertVideo(ctx context.Context, video model.Video) error {
 	var existingVideo model.Video
 	if err := db.DB.WithContext(ctx).Where("video_id = ?", video.VideoID).First(&existingVideo).Error; err == nil {
 		log.Printf("Video %s already exists, skipping insert", video.VideoID)
-		return nil 
+		return nil
 	}
 
 	if err := db.DB.WithContext(ctx).Create(&video).Error; err != nil {
