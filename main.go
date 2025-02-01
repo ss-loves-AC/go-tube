@@ -22,7 +22,11 @@ func main() {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
 
-	db := storage.NewDB()
+	db , err := storage.NewDB()
+	if err != nil {
+		log.Fatalf("Database initialization failed: %v", err)
+	}
+	
 	cache := storage.NewCache()
 
 	apiKeys := []string{

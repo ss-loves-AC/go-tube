@@ -20,7 +20,7 @@ type MysqlDB struct {
 	DB *gorm.DB
 }
 
-func NewDB() *MysqlDB {
+func NewDB() (*MysqlDB , error) {
 
 	dbHost := "mysql"
 	dbName := "go_tube"
@@ -33,15 +33,16 @@ func NewDB() *MysqlDB {
 	db, err := gorm.Open(mysql.Open(source), &gorm.Config{})
 	if err != nil {
 		fmt.Println("gorm Db connection ", err)
-		panic("Failed to connect to database")
+		return nil, fmt.Errorf("gorm DB connection error: %w", err)
 	}
 
 	if err := db.AutoMigrate(&model.Video{}); err != nil {
 		fmt.Println("Failed to auto migrate:", err)
-		panic("Auto migration failed")
+		return nil, fmt.Errorf("failed to auto migrate: %w", err)
+
 	}
 
-	return &MysqlDB{DB: db}
+	return &MysqlDB{DB: db} , nil
 }
 
 func (db *MysqlDB) GetVideos(ctx context.Context) ([]model.Video, error) {
