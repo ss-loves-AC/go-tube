@@ -6,18 +6,21 @@ import (
 	"go-tube/handler"
 	"go-tube/service"
 	"go-tube/storage"
+	"log"
 	"os"
 	"os/signal"
 	"time"
-	"log"
 )
 
 func main() {
 
 	log.Println("Starting server!!!")
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer stop()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, os.Interrupt)
 
 	db := storage.NewDB()
 	cache := storage.NewCache()
@@ -33,10 +36,16 @@ func main() {
 	go func() {
 		if err := api.Run(h, ":8080"); err != nil {
 			log.Fatalf("Error starting server: %v", err)
+			cancel()
 		}
 	}()
 
-	<-ctx.Done()
-	log.Println("Shutting down server!!!")
-
+	select {
+	case <-ctx.Done():
+		log.Println("Shutting down server!!!")
+	case <-signalChan:
+		log.Println("Received interrupt signal")
+		cancel()
+	}
+	
 }
