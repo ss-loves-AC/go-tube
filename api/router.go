@@ -15,3 +15,8 @@ func NewRouter(h *handler.Handler) *gin.Engine {
 
 	return router
 }
+
+func Run(h *handler.Handler, addr string) error {
+	router := NewRouter(h)
+	return router.Run(addr)
+}
