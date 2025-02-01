@@ -3,13 +3,13 @@ package main
 import (
 	"go-tube/api"
 	"go-tube/handler"
-	"go-tube/database"
+	"go-tube/storage"
 )
 
 func main() {
 
-	db := database.NewDB()
-	cache := database.NewCache()
+	db := storage.NewDB()
+	cache := storage.NewCache()
 	h := handler.NewHandler(db, cache)
 	router := api.NewRouter(h)
 
