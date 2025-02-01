@@ -13,7 +13,7 @@ This is a simple API that fetches the latest YouTube videos based on a predefine
 
 ### 1. Clone the Repo
 ```bash
-git clone https://github.com/ss_loves_AC/go-tube.git
+git clone https://github.com/ss-loves-AC/go-tube.git
 cd go-tube
 ```
 
@@ -29,5 +29,68 @@ Build and run the project from go-tube directory using
 ```bash
 docker-compose build
 docker-compose up
+
 ```
 
+
+## API Endpoints
+
+### 1. `GET /videos`
+Fetches stored videos, sorted by publish date.
+
+- **Query Params:**
+  - `page` (optional): Page number (default is 1)
+  - `limit` (optional): Number of results per page (default is 10)
+
+#### Example Request:
+```bash
+curl "http://localhost:8080/videos?page=1&limit=10"
+```
+#### Example Response:
+```bash
+{
+  "page": 1,
+  "limit": 10,
+  "data": [
+    {
+      "video_id": "123abc",
+      "title": "Golang Tutorial",
+      "description": "Learn Golang in 10 minutes",
+      "published_at": "2025-02-01T12:00:00Z",
+      "thumbnail": "https://img.youtube.com/vi/123abc/default.jpg",
+      "url" : ""
+    },
+    ...
+  ]
+}
+```
+
+### 1. `GET /search`
+Search for videos by title or description.
+
+- **Query Params:**
+  -  `query` (required): Search term (e.g., golang)
+  - `page` (optional): Page number (default is 1)
+  - `limit` (optional): Number of results per page (default is 10)
+
+#### Example Request:
+```bash
+curl "http://localhost:8080/search?query=golang&page=1&limit=10"
+```
+#### Example Response:
+```bash
+{
+  "page": 1,
+  "limit": 10,
+  "data": [
+    {
+      "video_id": "456def",
+      "title": "Advanced Golang",
+      "description": "Golang best practices",
+      "published_at": "2025-02-01T14:00:00Z",
+      "thumbnail": "https://img.youtube.com/vi/456def/default.jpg"
+    },
+    ...
+  ]
+}
+```

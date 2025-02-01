@@ -72,8 +72,12 @@ func (y *YoutubeService) searchAndStoreVideos(ctx context.Context) error {
 		return fmt.Errorf("failed to create YouTube service: %v", err)
 	}
 
+    publishedAfter := time.Now().Add(-24 * time.Hour).Format(time.RFC3339)
 	call := service.Search.List([]string{"id", "snippet"}).
 		Q(y.Query).
+		Type("video").
+		Order("date").
+		PublishedAfter(publishedAfter).
 		MaxResults(50)
 	response, err := call.Do()
 	if err != nil {
