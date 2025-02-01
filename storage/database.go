@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go-tube/model"
+	"log"
 	"strings"
 
 	"gorm.io/driver/mysql"
@@ -20,7 +21,7 @@ type MysqlDB struct {
 	DB *gorm.DB
 }
 
-func NewDB() (*MysqlDB , error) {
+func NewDB() (*MysqlDB, error) {
 
 	dbHost := "mysql"
 	dbName := "go_tube"
@@ -32,7 +33,7 @@ func NewDB() (*MysqlDB , error) {
 
 	db, err := gorm.Open(mysql.Open(source), &gorm.Config{})
 	if err != nil {
-		fmt.Println("gorm Db connection ", err)
+		log.Println("gorm Db connection ", err)
 		return nil, fmt.Errorf("gorm DB connection error: %w", err)
 	}
 
@@ -42,7 +43,7 @@ func NewDB() (*MysqlDB , error) {
 
 	}
 
-	return &MysqlDB{DB: db} , nil
+	return &MysqlDB{DB: db}, nil
 }
 
 func (db *MysqlDB) GetVideos(ctx context.Context) ([]model.Video, error) {
@@ -67,6 +68,12 @@ func (db *MysqlDB) SearchVideos(ctx context.Context, query string) ([]model.Vide
 func (db *MysqlDB) InsertVideo(ctx context.Context, video model.Video) error {
 	if video.Title == "" {
 		return fmt.Errorf("video title cannot be empty")
+	}
+
+	var existingVideo model.Video
+	if err := db.DB.WithContext(ctx).Where("video_id = ?", video.VideoID).First(&existingVideo).Error; err == nil {
+		log.Printf("Video %s already exists, skipping insert", video.VideoID)
+		return nil 
 	}
 
 	if err := db.DB.WithContext(ctx).Create(&video).Error; err != nil {

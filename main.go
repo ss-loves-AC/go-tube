@@ -25,16 +25,15 @@ func main() {
 	db , err := storage.NewDB()
 	if err != nil {
 		log.Fatalf("Database initialization failed: %v", err)
-	}
-	
+	}	
 	cache := storage.NewCache()
 
 	apiKeys := []string{
-		"API_KEY_1",
+		"AIzaSyA8Dlbjo9j9Hcg4UH1Hjh8InuZ0BexKC10",
 	}
 
 	youtubeSvc := service.NewYoutubeService(db, cache, "golang", apiKeys)
-	go youtubeSvc.Start(ctx, 10*time.Second)
+	go youtubeSvc.Start(ctx, 10*time.Second , cancel)
 
 	h := handler.NewHandler(db, cache)
 	go func() {

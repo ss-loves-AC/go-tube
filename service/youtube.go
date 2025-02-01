@@ -30,11 +30,11 @@ func NewYoutubeService(db storage.DB, cache storage.Cache, query string, apiKeys
 		APIKeys:       apiKeys,
 		round:         0,
 		errorCount:    0,
-		maxErrorCount: 20,
+		maxErrorCount: 3,
 	}
 }
 
-func (y *YoutubeService) Start(ctx context.Context, interval time.Duration) {
+func (y *YoutubeService) Start(ctx context.Context, interval time.Duration , cancel context.CancelFunc) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
@@ -50,7 +50,6 @@ func (y *YoutubeService) Start(ctx context.Context, interval time.Duration) {
 				y.errorCount++
 				if y.errorCount >= y.maxErrorCount {
 					log.Println("Max error count reached. Stopping youtube service")
-					_, cancel := context.WithCancel(ctx)
 					cancel()
 					return
 				}
@@ -96,6 +95,7 @@ func (y *YoutubeService) searchAndStoreVideos(ctx context.Context) error {
 			Thumbnail:   item.Snippet.Thumbnails.Default.Url,
 			PublishedAt: publishedAt,
 		}
+
 
 		if err := y.DB.InsertVideo(ctx, video); err != nil {
 			log.Printf("Failed to insert video %s: %v\n", video.VideoID, err)
