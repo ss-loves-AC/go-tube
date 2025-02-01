@@ -31,8 +31,10 @@ func main() {
 	apiKeys := []string{
 		"AIzaSyA8Dlbjo9j9Hcg4UH1Hjh8InuZ0BexKC10",
 	}
+    
+	predfinedQuery := "cricket"
 
-	youtubeSvc := service.NewYoutubeService(db, cache, "golang", apiKeys)
+	youtubeSvc := service.NewYoutubeService(db, cache, predfinedQuery , apiKeys)
 	go youtubeSvc.Start(ctx, 10*time.Second , cancel)
 
 	h := handler.NewHandler(db, cache)
