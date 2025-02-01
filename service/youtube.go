@@ -74,7 +74,7 @@ func (y *YoutubeService) searchAndStoreVideos(ctx context.Context) error {
 
 	call := service.Search.List([]string{"id", "snippet"}).
 		Q(y.Query).
-		MaxResults(10)
+		MaxResults(50)
 	response, err := call.Do()
 	if err != nil {
 		log.Printf("Failed to search videos: %v", err)

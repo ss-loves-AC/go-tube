@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 )
 
@@ -22,20 +23,23 @@ func main() {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
 
-	db , err := storage.NewDB()
+	db, err := storage.NewDB()
 	if err != nil {
 		log.Fatalf("Database initialization failed: %v", err)
-	}	
+	}
 	cache := storage.NewCache()
 
-	apiKeys := []string{
-		"AIzaSyA8Dlbjo9j9Hcg4UH1Hjh8InuZ0BexKC10",
+	apiKeysStr := os.Getenv("YOUTUBE_API_KEY")
+	predfinedQuery := os.Getenv("PREDIFINED_QUERY")
+	if apiKeysStr == "" {
+		log.Fatalf("No API keys found in the environment variables.")
+		return
 	}
-    
-	predfinedQuery := "cricket"
 
-	youtubeSvc := service.NewYoutubeService(db, cache, predfinedQuery , apiKeys)
-	go youtubeSvc.Start(ctx, 10*time.Second , cancel)
+	apiKeys := strings.Split(apiKeysStr, ",")
+
+	youtubeSvc := service.NewYoutubeService(db, cache, predfinedQuery, apiKeys)
+	go youtubeSvc.Start(ctx, 60*time.Second, cancel)
 
 	h := handler.NewHandler(db, cache)
 	go func() {
@@ -52,5 +56,5 @@ func main() {
 		log.Println("Received interrupt signal")
 		cancel()
 	}
-	
+
 }
