@@ -13,12 +13,18 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - go-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 5s
+      retries: 5
+      start_period: 30s
 
   go-app:
     build: .
     container_name: go_tube_app
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy  # Wait for MySQL to be healthy
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
