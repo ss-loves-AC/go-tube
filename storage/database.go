@@ -36,6 +36,11 @@ func NewDB() *MysqlDB {
 		panic("Failed to connect to database")
 	}
 
+	if err := db.AutoMigrate(&model.Video{}); err != nil {
+		fmt.Println("Failed to auto migrate:", err)
+		panic("Auto migration failed")
+	}
+
 	return &MysqlDB{DB: db}
 }
 
